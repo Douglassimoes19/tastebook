@@ -47,11 +47,7 @@ public class Receita {
 	}
 
 	public Ingrediente[] getIngredientes() {
-		ArrayList<String> lista = new ArrayList<>();
-		foreach(ingredientes){
-			ArrayList<String> lista1 = lista;
-			lista1.add(ingredientes[0].getNome());
-		}
+
 		return ingredientes;
 	}
 
