@@ -1,15 +1,42 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import classesmodel.Usuario;
+import classesutil.*;
+import classesdao.UsuarioDao;
+
+import javax.swing.*;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+
+        Connection conn = null;
+        try {
+            conn = Dbutil.getConnection();
+            if (conn != null) {
+                JOptionPane.showMessageDialog(null, "Conexão bem-sucedida com o banco de dados!");
+            } else {
+                JOptionPane.showMessageDialog(null,"Falha na conexão com o banco de dados.");
+            }
+        }  finally {
+            Dbutil.desconectar(conn);
         }
+
+        List<String> array = new ArrayList<String>();
+        array.add("carne");
+        array.add("leite");
+        array.add("morango");
+
+        //Usuario usuario1 = new Usuario("douglas", "Douglas@douglas",array);
+        //System.out.println(usuario1.toString());
+        UsuarioDao dao = new UsuarioDao();
+        //dao.cadastrarUsuario(usuario1);
+        List<Usuario> lista = dao.listarUsuarios();
+        Usuario aleteraUser = dao.buscarUsuario(1);
+
+        System.out.println(lista);
+
     }
+
 }
