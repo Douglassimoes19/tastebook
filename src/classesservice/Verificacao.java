@@ -16,7 +16,7 @@ public class Verificacao {
         for (String item : lista) {
             if (!item.matches("[\\p{L}]+")) {
                 return false;
-            }// espero que tenha funcionado
+            }// testando refresh
         }
         return true; 
     }
