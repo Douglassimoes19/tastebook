@@ -1,3 +1,4 @@
+/*
 package classesdao;
 
 import classesmodel.Receita;
@@ -119,3 +120,4 @@ public class ReceitaDao {
         }
     }
 }
+*/
