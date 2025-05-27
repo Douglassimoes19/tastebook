@@ -20,7 +20,7 @@ public class Main {
                 JOptionPane.showMessageDialog(null,"Falha na conexão com o banco de dados.");
             }
         }  finally {
-            Dbutil.desconectar(conn);
+            Dbutil.desconectar(conn);//adad
         }
 
         List<String> array = new ArrayList<String>();
