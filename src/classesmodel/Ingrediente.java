@@ -9,6 +9,8 @@ public class Ingrediente {
 		this.nome = nome;
 	}
 
+	public Ingrediente() {}
+
 	public int getId() {
 		return id;
 	}

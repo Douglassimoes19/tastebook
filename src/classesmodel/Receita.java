@@ -11,8 +11,16 @@ public class Receita {
     private String modoPreparo;
     private String tempoPreparo;
 	private Usuario usuario;
-	
-    public Receita(String titulo, String categoria, Ingrediente[] ingredientes, String modoPreparo, String tempoPreparo, Usuario usuario) {
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public Receita(String titulo, String categoria, Ingrediente[] ingredientes, String modoPreparo, String tempoPreparo, Usuario usuario) {
 		super();
 		this.titulo = titulo;
 		this.categoria = categoria;
@@ -21,6 +29,9 @@ public class Receita {
 		this.tempoPreparo = tempoPreparo;
         this.usuario = usuario;
     }
+	public Receita() {
+
+	}
 
 	public int getId() {
 		return id;
