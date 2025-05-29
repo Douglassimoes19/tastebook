@@ -1,13 +1,14 @@
 package classesmodel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Receita {
 	
     private int id;
     private String titulo;
     private String categoria;
-    private Ingrediente[] ingredientes;
+    private List<Ingrediente> ingredientes;
     private String modoPreparo;
     private String tempoPreparo;
 	private Usuario usuario;
@@ -20,7 +21,7 @@ public class Receita {
 		this.usuario = usuario;
 	}
 
-	public Receita(String titulo, String categoria, Ingrediente[] ingredientes, String modoPreparo, String tempoPreparo, Usuario usuario) {
+	public Receita(String titulo, String categoria, List<Ingrediente> ingredientes, String modoPreparo, String tempoPreparo, Usuario usuario) {
 		super();
 		this.titulo = titulo;
 		this.categoria = categoria;
@@ -57,12 +58,12 @@ public class Receita {
 		this.categoria = categoria;
 	}
 
-	public Ingrediente[] getIngredientes() {
+	public List<Ingrediente> getIngredientes() {
 
 		return ingredientes;
 	}
 
-	public void setIngredientes(Ingrediente[] ingredientes) {
+	public void setIngredientes(List<Ingrediente> ingredientes) {
 		this.ingredientes = ingredientes;
 	}
 
@@ -81,8 +82,25 @@ public class Receita {
 	public void setTempoPreparo(String tempoPreparo) {
 		this.tempoPreparo = tempoPreparo;
 	}
-    
-    
-    
-    
+
+	public List<String> FormatarIngredientes(List<Ingrediente> ingredientes) {
+		List<String> ingredientesFormat = new ArrayList<>();
+		for(Ingrediente ing : this.ingredientes){
+			ingredientesFormat.add(ing.getNome());
+		}
+		return ingredientesFormat;
+	}
+
+	@Override
+	public String toString() {
+		return "Receita{" +
+				"id=" + id +
+				", titulo='" + titulo + '\'' +
+				", categoria='" + categoria + '\'' +
+				", ingredientes=" + FormatarIngredientes(ingredientes) +
+				", modoPreparo='" + modoPreparo + '\'' +
+				", tempoPreparo='" + tempoPreparo + '\'' +
+				", usuario=" + usuario.getNome() +
+				'}';
+	}
 }

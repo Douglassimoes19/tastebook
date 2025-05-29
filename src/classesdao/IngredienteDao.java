@@ -5,6 +5,7 @@ import classesutil.Dbutil;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class IngredienteDao {
     Connection conn;
@@ -19,7 +20,13 @@ public class IngredienteDao {
                 stmt.setString(1, ingrediente.getNome());
                 int result = stmt.executeUpdate();
                 if(result > 0){
-                    return true;
+                    ResultSet rs = stmt.getGeneratedKeys();
+                    if(rs.next()){
+                        ingrediente.setId(rs.getInt(1));
+                        System.out.println("Ingrediente criado com sucesso! " + ingrediente.toString());
+                        return true;
+                    }
+
                 }
            } catch (SQLException e) {
                throw new RuntimeException(e);
@@ -33,21 +40,34 @@ public class IngredienteDao {
     }
 
     public boolean excluirIngrediente(Ingrediente ingrediente) {
+        if (ingrediente != null) {
+            String sql = "DELETE FROM ingrediente WHERE id = ?";
+            try(PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
+                stmt.setInt(1, ingrediente.getId());
+                int result = stmt.executeUpdate();
+                if(result > 0){
+                    return true;
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return false;
     }
 
     public Ingrediente buscarIngrediente(String nome) {
         if (nome != null) {
-            String sql = "SELECT * FROM ingrediente WHERE nome = ?";
+            String sql = "SELECT id, nome FROM ingrediente WHERE nome = ?";
             try(PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
                 stmt.setString(1, nome);
-                int result = stmt.executeUpdate();
-                if(result > 0){
-                    ResultSet rs = stmt.getGeneratedKeys();
-                    if(rs.next()){
+                ResultSet res  = stmt.executeQuery();
+                if(res != null ){
+
+                    if(res.next()){
                         Ingrediente ingrediente = new Ingrediente();
-                        ingrediente.setId(rs.getInt(1));
+                        ingrediente.setId(res.getInt(1));
                         ingrediente.setNome(nome);
+
                         return ingrediente;
                     }
                 }
@@ -64,12 +84,12 @@ public class IngredienteDao {
             String sql = "SELECT * FROM ingrediente WHERE nome = ?";
             try(PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
                 stmt.setString(1, nome);
-                int result = stmt.executeUpdate();
-                if(result > 0){
-                    ResultSet rs = stmt.getGeneratedKeys();
-                    if(rs.next()){
+                ResultSet res  = stmt.executeQuery();
+                if(res != null ){
+
+                    if(res.next()){
                         Ingrediente ingrediente = new Ingrediente();
-                        ingrediente.setId(rs.getInt(1));
+                        ingrediente.setId(res.getInt(1));
                         ingrediente.setNome(nome);
                         return ingrediente.getId();
                     }
@@ -82,7 +102,20 @@ public class IngredienteDao {
         return 0 ;
     }
 
-    public ArrayList<Ingrediente> listarIngredientes() {
-        return null;
+    public List<Ingrediente> listarIngredientes() {
+        List<Ingrediente> ingredientes = new ArrayList<>();
+        String sql = "SELECT id, nome FROM ingrediente";
+        try(PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
+            ResultSet rs = stmt.executeQuery();
+            while(rs.next()){
+                Ingrediente ingrediente = new Ingrediente();
+                ingrediente.setId(rs.getInt(1));
+                ingrediente.setNome(rs.getString(2));
+                ingredientes.add(ingrediente);
+            }
+            return ingredientes;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

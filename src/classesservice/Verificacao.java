@@ -20,4 +20,12 @@ public class Verificacao {
         }
         return true; 
     }
+
+    public static String capitalizeFirstLetter(String str) {
+        if (str == null || str.isEmpty()) {
+            return str;
+        }
+        str = str.trim().toLowerCase(); // remove espaços e padroniza para minúsculo
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
 }

@@ -26,6 +26,12 @@ public class Ingrediente {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-    
-    
+
+	@Override
+	public String toString() {
+		return "Ingrediente{" +
+				"id=" + id +
+				", nome='" + nome + '\'' +
+				'}';
+	}
 }

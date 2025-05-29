@@ -96,7 +96,7 @@ public class UsuarioDao {
     }
 
     public Usuario buscarUsuario(int id) {
-        String sql = "select * from usuario where id = ?";
+        String sql = "select id, nome, nomeUsuario, email, alergias,senha from usuario where id = ?";
         try(PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
             stmt.setInt(1, id);
             try(ResultSet rs = stmt.executeQuery()){
@@ -118,9 +118,27 @@ public class UsuarioDao {
         return null;
     }
 
+    public String buscarNomeUsuario(int id) {
+        String sql = "select  nomeUsuario from usuario where id = ?";
+        try(PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)){
+            stmt.setInt(1, id);
+            try(ResultSet rs = stmt.executeQuery()){
+                if(rs.next()){
+                    String nome = rs.getString("nomeUsuario");
+
+                    return nome;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar usuário: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public List<Usuario> listarUsuarios() {
         List<Usuario> usuarios = new ArrayList<>();
-        String sql = "select * from usuario";
+        String sql = "select id, nome, nomeUsuario, email, alergias from usuario";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
              ResultSet rs = stmt.executeQuery()){
                 while(rs.next()){

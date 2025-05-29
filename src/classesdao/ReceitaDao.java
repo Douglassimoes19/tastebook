@@ -19,7 +19,7 @@ public class ReceitaDao {
 
     public boolean cadastrarReceita(Receita receita) {
         if (receita != null) {
-            String sql = "INSERT INTO receita (titulo, categoria, modo_preparo, tempo_de_preparo, id_usuario) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO receita (titulo, categoria, modoPreparo, tempoPreparo, usuario_id) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, receita.getTitulo());
                 stmt.setString(2, receita.getCategoria());
@@ -36,7 +36,7 @@ public class ReceitaDao {
                         IngredienteDao ing_Dao = new IngredienteDao();
                         for (Ingrediente ingrediente : receita.getIngredientes()) {
                             int idIngrediente = ing_Dao.buscarIngrediente2(ingrediente.getNome());
-                            String sqlRelacao = "insert into receita_ingrediente (id_receita, id_ingrediente) VALUES (?, ?)";
+                            String sqlRelacao = "insert into receita_ingrediente (receita_id, ingrediente_id) VALUES (?, ?)";
                             try (PreparedStatement stmt2 = conn.prepareStatement(sqlRelacao)) {
                                 stmt2.setInt(1, receitaId);
                                 stmt2.setInt(2, idIngrediente);
@@ -56,11 +56,12 @@ public class ReceitaDao {
 
     public boolean alterarReceita(Receita receita) {
         if (receita != null) {
-            String sql = "UPDATE receita SET titulo = ?, categoria = ?, modoPreparo = ?,tempoPreparo, categoria = ?, id_usuario = ? WHERE id = ?";
+            String sql = "UPDATE receita SET titulo = ?, categoria = ?, modoPreparo = ?,tempoPreparo = ?, usuario_id = ? WHERE id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, receita.getTitulo());
+                stmt.setString(2, receita.getCategoria());
                 stmt.setString(3, receita.getModoPreparo());
-                stmt.setString(4, receita.getCategoria());
+                stmt.setString(4, receita.getTempoPreparo());
                 stmt.setInt(5, receita.getUsuario().getId());
                 stmt.setInt(6, receita.getId());
 
@@ -79,11 +80,23 @@ public class ReceitaDao {
 
     public boolean excluirReceita(Receita receita) {
         if (receita != null) {
-            String sql = "DELETE FROM receita WHERE id = ?";
+            String sql = "DELETE FROM receita_ingrediente WHERE receita_id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setInt(1, receita.getId());
                 int result = stmt.executeUpdate();
-                return result > 0;
+                if (result > 0) {
+                    String sql2 = "DELETE FROM receita WHERE id = ?";
+                    try (PreparedStatement stmt2 = conn.prepareStatement(sql2)) {
+                        stmt2.setInt(1, receita.getId());
+                        result = stmt2.executeUpdate();
+                        if (result > 0) {
+                            System.out.println("Receita excluída. ");
+                            return true;
+                        }
+                    }
+
+                }
+
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -92,9 +105,9 @@ public class ReceitaDao {
     }
 
     public Receita buscarReceita(int id) {
-        String sql = " SELECT r.id, r.titulo, r.modo_preparo, r.categoria, r.tempo_preparo," +
-                "u.id AS usuario_id, u.nome AS usuario_nome FROM receita r " +
-                " JOIN usuario u ON r.id_usuario = u.id WHERE r.id = ?";
+        String sql = " SELECT r.id, r.titulo, r.modoPreparo, r.categoria, r.tempoPreparo," +
+                "u.id AS usuario_id, u.nomeUsuario AS usuario_Nome FROM receita r " +
+                " JOIN usuario u ON r.usuario_id = u.id WHERE r.id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -102,19 +115,19 @@ public class ReceitaDao {
                     Receita receita = new Receita();
                     receita.setId(rs.getInt("id"));
                     receita.setTitulo(rs.getString("titulo"));
-                    receita.setModoPreparo(rs.getString("modo_preparo"));
+                    receita.setModoPreparo(rs.getString("modoPreparo"));
                     receita.setCategoria(rs.getString("categoria"));
-                    receita.setTempoPreparo(rs.getString("tempo_preparo"));
+                    receita.setTempoPreparo(rs.getString("tempoPreparo"));
 
                     // Instancia o usuário com nome e id
                     Usuario usuario = new Usuario();
                     usuario.setId(rs.getInt("usuario_id"));
-                    usuario.setNome(rs.getString("usuario_nome"));
+                    usuario.setNome(rs.getString("usuario_Nome"));
                     receita.setUsuario(usuario);
 
                     // Busca os ingredientes
                     List<Ingrediente> ingredientes = buscarIngredientesDaReceita(id);
-                    receita.setIngredientes(ingredientes.toArray(new Ingrediente[0]));
+                    receita.setIngredientes(ingredientes);
 
                     return receita;
                 }
@@ -128,30 +141,33 @@ public class ReceitaDao {
 
     public List<Receita> listarReceitas() {
         List<Receita> receitas = new ArrayList<>();
-        String sql = " SELECT r.id, r.titulo, r.modo_preparo, r.categoria, r.tempo_preparo," +
-                "u.id AS usuario_id, u.nome AS usuario_nome FROM receita r " +
-                " JOIN usuario u ON r.id_usuario = u.id WHERE r.id = ?";
+        String sql = " SELECT r.id, r.titulo, r.modoPreparo, r.categoria, r.tempoPreparo," +
+                "u.id AS usuario_id, u.nomeUsuario AS usuario_nome FROM receita r " +
+                " JOIN usuario u ON r.usuario_id = u.id ";
         try (PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Receita receita = new Receita();
                 receita.setId(rs.getInt("id"));
                 receita.setTitulo(rs.getString("titulo"));
-                receita.setModoPreparo(rs.getString("modo_preparo"));
+                receita.setModoPreparo(rs.getString("modoPreparo"));
                 receita.setCategoria(rs.getString("categoria"));
-                receita.setTempoPreparo(rs.getString("tempo_preparo"));
+                receita.setTempoPreparo(rs.getString("tempoPreparo"));
+
 
                 // Instancia o usuário com nome e id
+
                 Usuario usuario = new Usuario();
                 usuario.setId(rs.getInt("usuario_id"));
-                usuario.setNome(rs.getString("usuario_nome"));
+                UsuarioDao usuarioDao = new UsuarioDao();
+                String nomeUser = usuarioDao.buscarNomeUsuario(usuario.getId());
+                usuario.setNome(nomeUser);
                 receita.setUsuario(usuario);
 
                 // Busca os ingredientes
                 List<Ingrediente> ingredientes = buscarIngredientesDaReceita(receita.getId());
-                receita.setIngredientes(ingredientes.toArray(new Ingrediente[0]));
-
-
+                receita.setIngredientes(ingredientes);
+                receitas.add(receita);
             }
             return receitas;
         } catch (SQLException e) {
@@ -164,8 +180,8 @@ public class ReceitaDao {
         String sql = """
         SELECT i.id, i.nome
         FROM ingrediente i
-        INNER JOIN receita_ingrediente ri ON i.id = ri.id_ingrediente
-        WHERE ri.id_receita = ?
+        INNER JOIN receita_ingrediente ri ON i.id = ri.ingrediente_id
+        WHERE ri.receita_id = ?
     """;
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
